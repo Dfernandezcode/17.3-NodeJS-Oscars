@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "start": "node --watch index.js"
   },
   "keywords": [],
   "author": "Daniel Fernandez",
@@ -45,6 +46,7 @@
     "esrecurse": "^4.3.0",
     "estraverse": "^5.3.0",
     "esutils": "^2.0.3",
+    "express": "^4.18.2",
     "fast-deep-equal": "^3.1.3",
     "fast-json-stable-stringify": "^2.1.0",
     "fast-levenshtein": "^2.0.6",
@@ -87,6 +89,7 @@
     "path-is-absolute": "^1.0.1",
     "path-key": "^3.1.1",
     "prelude-ls": "^1.2.1",
+    "prompt-sync": "^4.2.0",
     "punycode": "^2.3.0",
     "queue-microtask": "^1.2.3",
     "resolve-from": "^4.0.0",
@@ -109,10 +112,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dfernandezcode/17.3-NodeWorkshop.git"
+    "url": "git+https://github.com/Dfernandezcode/17.3-NodeJS-Oscars.git"
   },
   "bugs": {
-    "url": "https://github.com/Dfernandezcode/17.3-NodeWorkshop/issues"
+    "url": "https://github.com/Dfernandezcode/17.3-NodeJS-Oscars"
   },
-  "homepage": "https://github.com/Dfernandezcode/17.3-NodeWorkshop#readme"
+  "homepage": "https://github.com/Dfernandezcode/17.3-NodeJS-Oscars#readme"
 }
