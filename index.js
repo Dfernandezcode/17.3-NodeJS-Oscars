@@ -63,10 +63,14 @@ router.post("/oscars/:year", (req, res) => {
   const yearPath = "./data/oscars-" + yearWinners + ".json";
   fs.readFile(yearPath, (error, data) => {
     if (error) {
-      fs.write(yearPath, JSON.stringify(oscar), (error) => {
+      const newOscar = [req.body];
+      fs.writeFile(yearPath, JSON.stringify(newOscar), (error) => {
         if (error) {
           res.status(500).send("error inesperado");
+          console.log(error);
         } else {
+          console.log("guardado correctamente");
+          res.json(newOscar);
         }
       });
     } else {
