@@ -1,7 +1,8 @@
+const route = require("color-convert/route");
 const express = require("express");
 const fs = require("fs");
 const homeHtmlFilePath = "./templates/home.html";
-const oscarsPath = "";
+const oscarsPath = "./data";
 const PORT = 3000;
 const server = express();
 const router = express.Router();
@@ -26,96 +27,119 @@ router.get("/", (req, res) => {
 });
 
 router.get("/oscars", (req, res) => {
-  console.log(`El usuario ha solicitado ${req.url}`);
-  res.setHeader("Content-Type", "text/plain; charset=UTF-8");
+  fs.readdir(oscarsPath, (error, data) => {
+    console.log(`El usuario ha solicitado ${req.url}`);
 
-  if (req.url === "/oscars") {
-    res.statusCode = 200;
-
-    const years = [
-      {
-        year: "2011",
-      },
-      {
-        year: "2012",
-      },
-      {
-        year: "2013",
-      },
-      {
-        year: "2014",
-      },
-      {
-        year: "2015",
-      },
-    ];
-
-    const yearString = JSON.stringify(years);
-    res.end(yearString);
-  } else {
-    res.statusCode = 404;
-    res.end("Error 404. Lo sentimos, no se ha encontrado la pagina.");
-  }
-});
-
-router.post("/f1-driver", (req, res) => {
-  fs.readFile(formulaOneDriversPath, (readError, data) => {
-    if (readError) {
-      res.status(500).send("Error inesperado :(");
+    if (error) {
+      res.status(500).send("error");
     } else {
-      try {
-        const parsedData = JSON.parse(data);
-        const lastId = parsedData[parsedData.length - 1].id;
-        const newDriver = req.body;
-        newDriver.id = lastId + 1;
-        parsedData.push(newDriver);
-        res.json(newDriver);
+      const response = { years: [] };
+      data.forEach((year) => {
+        response.years.push(year.slice(7, 11));
+      });
 
-        // Guardamos datos en el fichero
-        fs.writeFile(
-          formulaOneDriversPath,
-          JSON.stringify(parsedData),
-          (error) => {
-            if (error) {
-              console.log("Ha ocurrido un error escribiendo el fichero");
-              console.log(error);
-            } else {
-              console.log(
-                `Fichero ${formulaOneDriversPath} guardado correctamente!`
-              );
-            }
-          }
-        );
-      } catch (parseError) {
-        res.status(500).send("Error inesperado :(");
-      }
+      console.log(data);
+      res.json(response);
     }
   });
 });
 
-router.get("/f1-driver/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-
-  fs.readFile(formulaOneDriversPath, (readError, data) => {
-    if (readError) {
-      res.status(500).send("Error inesperado :(");
+router.get("/oscars/:year", (req, res) => {
+  const yearWinners = req.params.year;
+  const yearPath = "./data/oscars-" + yearWinners + ".json";
+  fs.readFile(yearPath, (error, data) => {
+    console.log(`El usuario ha solicitado ${req.url}`);
+    if (error) {
+      res.status(500).send("error inesperado");
     } else {
-      try {
-        const parsedData = JSON.parse(data);
-        const driver = parsedData.find((driver) => driver.id === id);
+      const yearInfo = JSON.parse(data);
+      res.json(yearInfo);
+    }
+  });
+});
 
-        if (driver) {
-          res.json(driver);
+router.post("/oscars/:year", (req, res) => {
+  const yearWinners = req.params.year;
+  const yearPath = "./data/oscars-" + yearWinners + ".json";
+  fs.readFile(yearPath, (error, data) => {
+    if (error) {
+      fs.write(yearPath, JSON.stringify(oscar), (error) => {
+        if (error) {
+          res.status(500).send("error inesperado");
         } else {
-          res.status(404);
-          res.send("no encontrado.");
         }
+      });
+    } else {
+      const oscar = JSON.parse(data);
+      const newOscar = req.body;
+      oscar.push(newOscar);
+
+      fs.writeFile(yearPath, JSON.stringify(oscar), (error) => {
+        if (error) {
+          res.status(500).send("error inesperado");
+        } else {
+          res.json(newOscar);
+        }
+      });
+    }
+  });
+});
+
+// {
+// "winners": [
+//     {
+//       "name": "Life of Pi",
+//       "awards":["sound","caca"]
+//     },
+//   ]
+//   }
+
+router.get("/winners-multiple/:year", (req, res) => {
+  const yearWinners = req.params.year;
+  const yearPath = "./data/oscars-" + yearWinners + ".json";
+  fs.readFile(yearPath, (error, data) => {
+    if (error) {
+      res.status(500).send("error inesperado");
+    } else {
+      try {
+        const winnersData = JSON.parse(data);
+        let countedWinners = winnersData.reduce((allWinners, winnerName) => {
+          const winners = allWinners.find(
+            (winner) => winner.name === winnerName.entity
+          );
+          if (winners) {
+            winners.awards.push(winnerName.category);
+          } else {
+            allWinners.push({
+              name: winnerName.entity,
+              awards: [winnerName.category],
+            });
+          }
+          return allWinners;
+        }, []);
+        countedWinners = countedWinners.filter(
+          (winner) => winner.awards.length > 1
+        );
+        res.json({ winners: countedWinners });
       } catch (parseError) {
-        res.status(500).send("Error inesperado :(");
+        console.error(parseError);
+        res.status(500).send("Error inesperado");
       }
     }
   });
 });
+
+// const names = ["Alice", "Bob", "Tiff", "Bruce", "Alice"];
+
+// const countedNames = names.reduce((allNames, name) => {
+//   const currCount = allNames[name] ?? 0;
+//   return {
+//     ...allNames,
+//     [name]: currCount + 1,
+//   };
+// }, {});
+// countedNames is:
+// { 'Alice': 2, 'Bob': 1, 'Tiff': 1, 'Bruce': 1 }
 
 // Server config
 server.use("/", router);
