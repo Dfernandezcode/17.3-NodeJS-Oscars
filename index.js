@@ -1,8 +1,7 @@
 const express = require("express");
 const fs = require("fs");
-
-const formulaOneDriversPath = "./f1-drivers-data.json";
 const homeHtmlFilePath = "./templates/home.html";
+const oscarsPath = "";
 const PORT = 3000;
 const server = express();
 const router = express.Router();
@@ -26,19 +25,37 @@ router.get("/", (req, res) => {
   });
 });
 
-router.get("/f1-driver", (req, res) => {
-  fs.readFile(formulaOneDriversPath, (readError, data) => {
-    if (readError) {
-      res.status(500).send("Error inesperado :(");
-    } else {
-      try {
-        const parsedData = JSON.parse(data);
-        res.json(parsedData);
-      } catch (parseError) {
-        res.status(500).send("Error inesperado :(");
-      }
-    }
-  });
+router.get("/oscars", (req, res) => {
+  console.log(`El usuario ha solicitado ${req.url}`);
+  res.setHeader("Content-Type", "text/plain; charset=UTF-8");
+
+  if (req.url === "/oscars") {
+    res.statusCode = 200;
+
+    const years = [
+      {
+        year: "2011",
+      },
+      {
+        year: "2012",
+      },
+      {
+        year: "2013",
+      },
+      {
+        year: "2014",
+      },
+      {
+        year: "2015",
+      },
+    ];
+
+    const yearString = JSON.stringify(years);
+    res.end(yearString);
+  } else {
+    res.statusCode = 404;
+    res.end("Error 404. Lo sentimos, no se ha encontrado la pagina.");
+  }
 });
 
 router.post("/f1-driver", (req, res) => {
@@ -91,7 +108,7 @@ router.get("/f1-driver/:id", (req, res) => {
           res.json(driver);
         } else {
           res.status(404);
-          res.send("Piloto no encontrado.");
+          res.send("no encontrado.");
         }
       } catch (parseError) {
         res.status(500).send("Error inesperado :(");
