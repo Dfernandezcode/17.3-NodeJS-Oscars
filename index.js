@@ -1,4 +1,4 @@
-const route = require("color-convert/route");
+// const route = require("color-convert/route");
 const express = require("express");
 const fs = require("fs");
 const homeHtmlFilePath = "./templates/home.html";
@@ -108,9 +108,7 @@ router.get("/winners-multiple/:year", (req, res) => {
       try {
         const winnersData = JSON.parse(data);
         let countedWinners = winnersData.reduce((allWinners, winnerName) => {
-          const winners = allWinners.find(
-            (winner) => winner.name === winnerName.entity
-          );
+          const winners = allWinners.find((winner) => winner.name === winnerName.entity);
           if (winners) {
             winners.awards.push(winnerName.category);
           } else {
@@ -121,9 +119,7 @@ router.get("/winners-multiple/:year", (req, res) => {
           }
           return allWinners;
         }, []);
-        countedWinners = countedWinners.filter(
-          (winner) => winner.awards.length > 1
-        );
+        countedWinners = countedWinners.filter((winner) => winner.awards.length > 1);
         res.json({ winners: countedWinners });
       } catch (parseError) {
         console.error(parseError);
